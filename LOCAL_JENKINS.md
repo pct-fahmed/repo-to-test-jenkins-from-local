@@ -8,6 +8,12 @@ This repository includes a local Jenkins setup intended for development use on a
 docker compose -f docker-compose.jenkins.yml up -d --build
 ```
 
+If Jenkins is already running, restart it after pipeline/networking changes:
+
+```bash
+docker compose -f docker-compose.jenkins.yml up -d --build --force-recreate
+```
+
 Jenkins UI:
 
 - `http://localhost:8090`
@@ -42,6 +48,8 @@ Build the pipeline job. Jenkins will:
 - run `mvn clean test`
 - run `mvn -DskipTests package`
 - build the Docker image
+
+The Jenkins container reaches the CI PostgreSQL container through `host.docker.internal`, which is mapped in [docker-compose.jenkins.yml](/home/faiz/datadisk/gits/repo-to-test-jenkins-from-local/docker-compose.jenkins.yml).
 
 ## Notes
 

@@ -17,10 +17,11 @@ pipeline {
         MAVEN_REPO_LOCAL = "${WORKSPACE}/.m2/repository"
         DB_CONTAINER = "repo-to-test-jenkins-from-local-ci-db-${BUILD_NUMBER}"
         CI_DB_PORT = '55432'
+        CI_DB_HOST = 'host.docker.internal'
         POSTGRES_DB = 'dvz_demo'
         POSTGRES_USER = 'dvz'
         POSTGRES_PASSWORD = 'dvz'
-        SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:${CI_DB_PORT}/dvz_demo"
+        SPRING_DATASOURCE_URL = "jdbc:postgresql://${CI_DB_HOST}:${CI_DB_PORT}/dvz_demo"
         SPRING_DATASOURCE_USERNAME = 'dvz'
         SPRING_DATASOURCE_PASSWORD = 'dvz'
     }
@@ -56,6 +57,7 @@ pipeline {
                       docker exec ${DB_CONTAINER} pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && exit 0
                       sleep 2
                     done
+                    docker logs ${DB_CONTAINER} || true
                     exit 1
                 '''
             }
