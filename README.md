@@ -1,4 +1,4 @@
-# DVZ Demo
+# repo-to-test-jenkins-from-local
 
 Baseline Java project using:
 
@@ -67,4 +67,3 @@ Useful Jenkins parameters:
 ## Local Jenkins
 
 For a local Jenkins controller running in Docker, see [LOCAL_JENKINS.md](/home/faiz/datadisk/gits/repo-to-test-jenkins-from-local/LOCAL_JENKINS.md).
-# repo-to-test-jenkins-from-local

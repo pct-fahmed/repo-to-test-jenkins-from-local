@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: repo-to-test-jenkins-from-local-db
+    environment:
+      POSTGRES_DB: dvz_demo
+      POSTGRES_USER: dvz
+      POSTGRES_PASSWORD: dvz
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dvz -d dvz_demo"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: repo-to-test-jenkins-from-local-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/dvz_demo
+      SPRING_DATASOURCE_USERNAME: dvz
+      SPRING_DATASOURCE_PASSWORD: dvz
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+
+volumes:
+  postgres-data:

@@ -1,0 +1,6 @@
+workflow-aggregator
+git
+docker-workflow
+ansicolor
+credentials-binding
+pipeline-stage-view

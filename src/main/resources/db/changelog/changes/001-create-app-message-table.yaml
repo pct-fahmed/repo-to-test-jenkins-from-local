@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-app-message-table
+      author: codex
+      changes:
+        - createTable:
+            tableName: app_message
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: message
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - insert:
+            tableName: app_message
+            columns:
+              - column:
+                  name: message
+                  value: Vaadin is connected to PostgreSQL through Liquibase-managed schema.
