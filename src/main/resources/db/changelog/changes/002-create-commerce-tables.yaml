@@ -1,0 +1,398 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-commerce-tables
+      author: codex
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: sku
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(500)
+              - column:
+                  name: price
+                  type: decimal(12,2)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: inventory
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: inventory_item
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: inventory_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity_on_hand
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reorder_level
+                  type: integer
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: inventory_item
+            baseColumnNames: inventory_id
+            referencedTableName: inventory
+            referencedColumnNames: id
+            constraintName: fk_inventory_item_inventory
+        - addForeignKeyConstraint:
+            baseTableName: inventory_item
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_inventory_item_product
+        - addUniqueConstraint:
+            tableName: inventory_item
+            columnNames: inventory_id, product_id
+            constraintName: uk_inventory_item_inventory_product
+        - createTable:
+            tableName: customer_order
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_number
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: customer_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ordered_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: order_item
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unit_price
+                  type: decimal(12,2)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: order_item
+            baseColumnNames: order_id
+            referencedTableName: customer_order
+            referencedColumnNames: id
+            constraintName: fk_order_item_order
+        - addForeignKeyConstraint:
+            baseTableName: order_item
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_order_item_product
+  - changeSet:
+      id: 003-seed-commerce-demo-data
+      author: codex
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: sku
+                  value: LAP-15-PRO
+              - column:
+                  name: name
+                  value: Laptop Pro 15
+              - column:
+                  name: description
+                  value: High-performance laptop for engineering workloads
+              - column:
+                  name: price
+                  valueNumeric: 1899.00
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: sku
+                  value: MON-27-4K
+              - column:
+                  name: name
+                  value: 27 Inch 4K Monitor
+              - column:
+                  name: description
+                  value: Color accurate display for office and design work
+              - column:
+                  name: price
+                  valueNumeric: 449.00
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: sku
+                  value: DOC-USBC
+              - column:
+                  name: name
+                  value: USB-C Dock
+              - column:
+                  name: description
+                  value: Dock with charging, HDMI, and ethernet
+              - column:
+                  name: price
+                  valueNumeric: 179.00
+        - insert:
+            tableName: inventory
+            columns:
+              - column:
+                  name: code
+                  value: BER-WH-1
+              - column:
+                  name: name
+                  value: Berlin Main Warehouse
+              - column:
+                  name: location
+                  value: Berlin
+        - insert:
+            tableName: inventory
+            columns:
+              - column:
+                  name: code
+                  value: MUC-ST-1
+              - column:
+                  name: name
+                  value: Munich Store
+              - column:
+                  name: location
+                  value: Munich
+        - insert:
+            tableName: inventory_item
+            columns:
+              - column:
+                  name: inventory_id
+                  valueNumeric: 1
+              - column:
+                  name: product_id
+                  valueNumeric: 1
+              - column:
+                  name: quantity_on_hand
+                  valueNumeric: 14
+              - column:
+                  name: reorder_level
+                  valueNumeric: 4
+        - insert:
+            tableName: inventory_item
+            columns:
+              - column:
+                  name: inventory_id
+                  valueNumeric: 1
+              - column:
+                  name: product_id
+                  valueNumeric: 2
+              - column:
+                  name: quantity_on_hand
+                  valueNumeric: 25
+              - column:
+                  name: reorder_level
+                  valueNumeric: 6
+        - insert:
+            tableName: inventory_item
+            columns:
+              - column:
+                  name: inventory_id
+                  valueNumeric: 2
+              - column:
+                  name: product_id
+                  valueNumeric: 3
+              - column:
+                  name: quantity_on_hand
+                  valueNumeric: 9
+              - column:
+                  name: reorder_level
+                  valueNumeric: 3
+        - insert:
+            tableName: customer_order
+            columns:
+              - column:
+                  name: order_number
+                  value: ORD-1001
+              - column:
+                  name: customer_name
+                  value: Alice Johnson
+              - column:
+                  name: status
+                  value: NEW
+              - column:
+                  name: ordered_at
+                  valueDate: 2026-04-15T09:30:00
+        - insert:
+            tableName: customer_order
+            columns:
+              - column:
+                  name: order_number
+                  value: ORD-1002
+              - column:
+                  name: customer_name
+                  value: Bob Smith
+              - column:
+                  name: status
+                  value: PROCESSING
+              - column:
+                  name: ordered_at
+                  valueDate: 2026-04-15T13:45:00
+        - insert:
+            tableName: order_item
+            columns:
+              - column:
+                  name: order_id
+                  valueNumeric: 1
+              - column:
+                  name: product_id
+                  valueNumeric: 1
+              - column:
+                  name: quantity
+                  valueNumeric: 1
+              - column:
+                  name: unit_price
+                  valueNumeric: 1899.00
+        - insert:
+            tableName: order_item
+            columns:
+              - column:
+                  name: order_id
+                  valueNumeric: 1
+              - column:
+                  name: product_id
+                  valueNumeric: 3
+              - column:
+                  name: quantity
+                  valueNumeric: 1
+              - column:
+                  name: unit_price
+                  valueNumeric: 179.00
+        - insert:
+            tableName: order_item
+            columns:
+              - column:
+                  name: order_id
+                  valueNumeric: 2
+              - column:
+                  name: product_id
+                  valueNumeric: 2
+              - column:
+                  name: quantity
+                  valueNumeric: 2
+              - column:
+                  name: unit_price
+                  valueNumeric: 449.00
+  - changeSet:
+      id: 004-seed-additional-products
+      author: codex
+      changes:
+        - loadData:
+            file: db/changelog/data/004-additional-products.csv
+            relativeToChangelogFile: false
+            separator: ","
+            tableName: product
+            columns:
+              - column:
+                  header: sku
+                  name: sku
+                  type: STRING
+              - column:
+                  header: name
+                  name: name
+                  type: STRING
+              - column:
+                  header: description
+                  name: description
+                  type: STRING
+              - column:
+                  header: price
+                  name: price
+                  type: NUMERIC

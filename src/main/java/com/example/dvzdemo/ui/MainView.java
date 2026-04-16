@@ -1,39 +1,69 @@
 package com.example.dvzdemo.ui;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Route("")
-@PageTitle("DVZ Demo")
+@PageTitle("Commerce Admin")
 public class MainView extends VerticalLayout {
 
-    public MainView(JdbcTemplate jdbcTemplate) {
-        List<String> messages = jdbcTemplate.queryForList(
-            "select message from app_message order by id",
-            String.class
-        );
+    private final VerticalLayout content = new VerticalLayout();
+    private final Map<Tab, Component> views = new LinkedHashMap<>();
 
-        Grid<String> grid = new Grid<>();
-        grid.setItems(messages);
-        grid.addColumn(value -> value).setHeader("Database Messages");
-        grid.setAllRowsVisible(true);
+    public MainView(
+        ProductCrudView productCrudView,
+        InventoryCrudView inventoryCrudView,
+        CustomerOrderCrudView customerOrderCrudView,
+        InventoryItemCrudView inventoryItemCrudView,
+        OrderItemCrudView orderItemCrudView
+    ) {
+        setSizeFull();
+        setPadding(true);
+        setSpacing(true);
 
-        Button refreshButton = new Button("Check database", event ->
-            Notification.show("Loaded " + messages.size() + " message(s) from PostgreSQL")
-        );
+        H1 title = new H1("Commerce Admin");
 
-        add(
-            new H1("DVZ Demo"),
-            refreshButton,
-            grid
-        );
+        Tab products = new Tab("Products");
+        Tab inventories = new Tab("Inventories");
+        Tab customerOrders = new Tab("Customer Orders");
+        Tab inventoryItems = new Tab("Inventory Items");
+        Tab orderItems = new Tab("Order Items");
+
+        views.put(products, productCrudView);
+        views.put(inventories, inventoryCrudView);
+        views.put(customerOrders, customerOrderCrudView);
+        views.put(inventoryItems, inventoryItemCrudView);
+        views.put(orderItems, orderItemCrudView);
+
+        Tabs tabs = new Tabs(products, inventories, customerOrders, inventoryItems, orderItems);
+        tabs.setWidthFull();
+        tabs.addSelectedChangeListener(event -> showView(event.getSelectedTab()));
+
+        content.setPadding(false);
+        content.setSpacing(false);
+        content.setSizeFull();
+
+        add(title, tabs, content);
+        expand(content);
+
+        showView(products);
+    }
+
+    private void showView(Tab tab) {
+        content.removeAll();
+        Component component = views.get(tab);
+        if (component instanceof RefreshableView refreshableView) {
+            refreshableView.refreshView();
+        }
+        content.add(component);
+        content.expand(component);
     }
 }

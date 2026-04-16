@@ -7,6 +7,8 @@ Baseline Java project using:
 - Vaadin
 - PostgreSQL
 - Liquibase
+- Swagger / OpenAPI
+- Testcontainers
 - Docker
 - Maven
 - Jenkins
@@ -27,6 +29,13 @@ mvn spring-boot:run
 
 Open `http://localhost:8081`.
 
+## Swagger
+
+When the application is running, open:
+
+- Swagger UI: `http://localhost:8081/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8081/api-docs`
+
 ## Full container run
 
 ```bash
@@ -39,11 +48,23 @@ docker compose up --build
 mvn clean verify
 ```
 
-## Production build
+## Integration tests
+
+Integration tests use Testcontainers with PostgreSQL, not the local Docker Compose database.
+
+Run them with:
 
 ```bash
-mvn -Pproduction clean package
+mvn test
 ```
+
+What happens during test startup:
+
+- Testcontainers starts a PostgreSQL container
+- Liquibase applies the schema and seed data to that container
+- Spring Boot runs the REST integration tests against that PostgreSQL instance
+
+The shared test container configuration lives in [AbstractPostgreSqlContainerTest.java](/home/faiz/datadisk/gits/repo-to-test-jenkins-from-local/src/test/java/com/example/dvzdemo/support/AbstractPostgreSqlContainerTest.java).
 
 ## Jenkins
 
