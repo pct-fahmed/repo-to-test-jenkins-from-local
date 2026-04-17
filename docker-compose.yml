@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: repo-to-test-jenkins-from-local-db
+    container_name: idm-plus-poc-db
     environment:
       POSTGRES_DB: dvz_demo
       POSTGRES_USER: dvz
@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: repo-to-test-jenkins-from-local-app
+    container_name: idm-plus-poc-app
     depends_on:
       db:
         condition: service_healthy

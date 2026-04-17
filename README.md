@@ -36,6 +36,30 @@ When the application is running, open:
 - Swagger UI: `http://localhost:8081/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8081/api-docs`
 
+## Database relationships
+
+The schema is defined in [002-create-commerce-tables.yaml](/home/faiz/datadisk/gits/idm-plus-poc/src/main/resources/db/changelog/changes/002-create-commerce-tables.yaml).
+
+Main table relationships:
+
+- `customer_order` to `order_item`: one-to-many
+- `product` to `order_item`: one-to-many
+- `inventory` to `inventory_item`: one-to-many
+- `product` to `inventory_item`: one-to-many
+
+Derived business relationships:
+
+- `customer_order` to `product`: many-to-many through `order_item`
+- `inventory` to `product`: many-to-many through `inventory_item`
+
+Important constraints:
+
+- `order_item.order_id` references `customer_order.id`
+- `order_item.product_id` references `product.id`
+- `inventory_item.inventory_id` references `inventory.id`
+- `inventory_item.product_id` references `product.id`
+- `inventory_item` has a unique constraint on `inventory_id, product_id`, so the same product can appear only once per inventory
+
 ## Full container run
 
 ```bash
@@ -64,7 +88,7 @@ What happens during test startup:
 - Liquibase applies the schema and seed data to that container
 - Spring Boot runs the REST integration tests against that PostgreSQL instance
 
-The shared test container configuration lives in [AbstractPostgreSqlContainerTest.java](/home/faiz/datadisk/gits/repo-to-test-jenkins-from-local/src/test/java/com/example/dvzdemo/support/AbstractPostgreSqlContainerTest.java).
+The shared test container configuration lives in [AbstractPostgreSqlContainerTest.java](/home/faiz/datadisk/gits/idm-plus-poc/src/test/java/com/example/dvzdemo/support/AbstractPostgreSqlContainerTest.java).
 
 ## Jenkins
 
@@ -87,4 +111,4 @@ Useful Jenkins parameters:
 
 ## Local Jenkins
 
-For a local Jenkins controller running in Docker, see [LOCAL_JENKINS.md](/home/faiz/datadisk/gits/repo-to-test-jenkins-from-local/LOCAL_JENKINS.md).
+For a local Jenkins controller running in Docker, see [LOCAL_JENKINS.md](/home/faiz/datadisk/gits/idm-plus-poc/LOCAL_JENKINS.md).

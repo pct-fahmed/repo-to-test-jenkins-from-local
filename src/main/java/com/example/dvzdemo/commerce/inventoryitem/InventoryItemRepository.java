@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, Long> {
 
+    boolean existsByProductId(Long productId);
+
     @EntityGraph(attributePaths = {"inventory", "product"})
     List<InventoryItem> findAllByOrderByIdAsc();
 

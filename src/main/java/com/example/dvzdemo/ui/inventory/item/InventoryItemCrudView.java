@@ -1,4 +1,4 @@
-package com.example.dvzdemo.ui;
+package com.example.dvzdemo.ui.inventory.item;
 
 import com.example.dvzdemo.commerce.inventory.Inventory;
 import com.example.dvzdemo.commerce.inventory.InventoryService;
@@ -6,6 +6,7 @@ import com.example.dvzdemo.commerce.inventoryitem.InventoryItem;
 import com.example.dvzdemo.commerce.inventoryitem.InventoryItemService;
 import com.example.dvzdemo.commerce.product.Product;
 import com.example.dvzdemo.commerce.product.ProductService;
+import com.example.dvzdemo.ui.RefreshableView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;

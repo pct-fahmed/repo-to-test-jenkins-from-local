@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
+    boolean existsByProductId(Long productId);
+
     @EntityGraph(attributePaths = {"order", "product"})
     List<OrderItem> findAllByOrderByIdAsc();
 

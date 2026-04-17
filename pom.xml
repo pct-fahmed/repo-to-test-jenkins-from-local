@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>com.example</groupId>
-    <artifactId>repo-to-test-jenkins-from-local</artifactId>
+    <artifactId>idm-plus-poc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>repo-to-test-jenkins-from-local</name>
-    <description>repo-to-test-jenkins-from-local application with Spring Boot, PostgreSQL, Liquibase, Docker, and Jenkins</description>
+    <name>idm-plus-poc</name>
+    <description>idm-plus-poc application with Spring Boot, PostgreSQL, Liquibase, Docker, and Jenkins</description>
 
     <properties>
         <java.version>21</java.version>

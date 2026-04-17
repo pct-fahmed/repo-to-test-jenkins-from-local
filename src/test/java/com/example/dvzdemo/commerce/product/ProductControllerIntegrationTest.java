@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -56,5 +57,60 @@ class ProductControllerIntegrationTest extends AbstractRestControllerIntegration
 
         mockMvc.perform(get("/api/v1/products/{id}", id))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteProductReferencedByOrderItemReturnsConflict() throws Exception {
+        String suffix = String.valueOf(System.nanoTime());
+
+        MvcResult productResult = mockMvc.perform(post("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(Map.of(
+                    "sku", "SKU-REF-" + suffix,
+                    "name", "Referenced Product " + suffix,
+                    "description", "Product used by an order item",
+                    "price", new BigDecimal("19.99")
+                ))))
+            .andExpect(status().isCreated())
+            .andReturn();
+        long productId = readId(productResult);
+
+        MvcResult orderResult = mockMvc.perform(post("/api/v1/customer-orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(Map.of(
+                    "orderNumber", "ORD-REF-" + suffix,
+                    "customerName", "Referenced Product Customer",
+                    "status", "NEW",
+                    "orderedAt", LocalDateTime.of(2026, 4, 17, 12, 0)
+                ))))
+            .andExpect(status().isCreated())
+            .andReturn();
+        long orderId = readId(orderResult);
+
+        MvcResult orderItemResult = mockMvc.perform(post("/api/v1/order-items")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(Map.of(
+                    "orderId", orderId,
+                    "productId", productId,
+                    "quantity", 1,
+                    "unitPrice", new BigDecimal("19.99")
+                ))))
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        long orderItemId = readId(orderItemResult);
+
+        mockMvc.perform(delete("/api/v1/products/{id}", productId))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.detail").value(
+                "Cannot delete product 'SKU-REF-" + suffix + "' because it is referenced by inventory items or order items"
+            ));
+
+        mockMvc.perform(delete("/api/v1/order-items/{id}", orderItemId))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/v1/customer-orders/{id}", orderId))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/v1/products/{id}", productId))
+            .andExpect(status().isNoContent());
     }
 }

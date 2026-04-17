@@ -7,7 +7,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'IMAGE_REPO', defaultValue: 'repo-to-test-jenkins-from-local', description: 'Docker image repository/name')
+        string(name: 'IMAGE_REPO', defaultValue: 'idm-plus-poc', description: 'Docker image repository/name')
         string(name: 'IMAGE_TAG', defaultValue: '', description: 'Optional image tag override; defaults to build-<BUILD_NUMBER>')
         choice(name: 'DEPLOY_ENV', choices: ['none', 'dev', 'qa', 'prod'], description: 'Deployment target environment')
         booleanParam(name: 'DEPLOY_ENABLED', defaultValue: false, description: 'Run the deploy stage after the image build')
@@ -15,7 +15,7 @@ pipeline {
 
     environment {
         MAVEN_REPO_LOCAL = "${WORKSPACE}/.m2/repository"
-        DB_CONTAINER = "repo-to-test-jenkins-from-local-ci-db-${BUILD_NUMBER}"
+        DB_CONTAINER = "idm-plus-poc-ci-db-${BUILD_NUMBER}"
         CI_DB_PORT = '55432'
         CI_DB_HOST = 'host.docker.internal'
         POSTGRES_DB = 'dvz_demo'

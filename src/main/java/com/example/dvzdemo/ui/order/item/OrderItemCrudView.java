@@ -1,4 +1,4 @@
-package com.example.dvzdemo.ui;
+package com.example.dvzdemo.ui.order.item;
 
 import com.example.dvzdemo.commerce.customerorder.CustomerOrder;
 import com.example.dvzdemo.commerce.customerorder.CustomerOrderService;
@@ -6,6 +6,7 @@ import com.example.dvzdemo.commerce.orderitem.OrderItem;
 import com.example.dvzdemo.commerce.orderitem.OrderItemService;
 import com.example.dvzdemo.commerce.product.Product;
 import com.example.dvzdemo.commerce.product.ProductService;
+import com.example.dvzdemo.ui.RefreshableView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;

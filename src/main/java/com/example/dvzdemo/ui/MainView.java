@@ -1,5 +1,10 @@
 package com.example.dvzdemo.ui;
 
+import com.example.dvzdemo.ui.customer.order.CustomerOrderCrudView;
+import com.example.dvzdemo.ui.inventory.InventoryCrudView;
+import com.example.dvzdemo.ui.inventory.item.InventoryItemCrudView;
+import com.example.dvzdemo.ui.order.item.OrderItemCrudView;
+import com.example.dvzdemo.ui.product.ProductCrudView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

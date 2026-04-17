@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: jenkins/Dockerfile
-    container_name: repo-to-test-jenkins-from-local-jenkins
+    container_name: idm-plus-poc-jenkins
     user: root
     ports:
       - "8090:8080"

@@ -1,5 +1,7 @@
 package com.example.dvzdemo.commerce.product;
 
+import com.example.dvzdemo.commerce.inventoryitem.InventoryItemRepository;
+import com.example.dvzdemo.commerce.orderitem.OrderItemRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +15,17 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+    private final OrderItemRepository orderItemRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(
+        ProductRepository productRepository,
+        InventoryItemRepository inventoryItemRepository,
+        OrderItemRepository orderItemRepository
+    ) {
         this.productRepository = productRepository;
+        this.inventoryItemRepository = inventoryItemRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +55,14 @@ public class ProductService {
     }
 
     public void delete(Long id) {
-        productRepository.delete(getProduct(id));
+        Product product = getProduct(id);
+        if (inventoryItemRepository.existsByProductId(id) || orderItemRepository.existsByProductId(id)) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Cannot delete product '" + product.getSku() + "' because it is referenced by inventory items or order items"
+            );
+        }
+        productRepository.delete(product);
     }
 
     public Product getProduct(Long id) {

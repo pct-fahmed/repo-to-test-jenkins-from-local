@@ -1,7 +1,8 @@
-package com.example.dvzdemo.ui;
+package com.example.dvzdemo.ui.product;
 
-import com.example.dvzdemo.commerce.product.Product;
-import com.example.dvzdemo.commerce.product.ProductService;
+import com.example.dvzdemo.commerce.product.v1.ProductRequest;
+import com.example.dvzdemo.commerce.product.v1.ProductResponse;
+import com.example.dvzdemo.ui.RefreshableView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -20,16 +21,16 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @UIScope
 public class ProductCrudView extends VerticalLayout implements RefreshableView {
 
-    private final ProductService productService;
-    private final Grid<Product> grid = new Grid<>(Product.class, false);
+    private final ProductApiClient productApiClient;
+    private final Grid<ProductResponse> grid = new Grid<>(ProductResponse.class, false);
     private final TextField sku = new TextField("SKU");
     private final TextField name = new TextField("Name");
     private final TextArea description = new TextArea("Description");
     private final BigDecimalField price = new BigDecimalField("Price");
-    private Product selectedProduct;
+    private ProductResponse selectedProduct;
 
-    public ProductCrudView(ProductService productService) {
-        this.productService = productService;
+    public ProductCrudView(ProductApiClient productApiClient) {
+        this.productApiClient = productApiClient;
 
         setSizeFull();
         configureGrid();
@@ -52,11 +53,11 @@ public class ProductCrudView extends VerticalLayout implements RefreshableView {
     }
 
     private void configureGrid() {
-        grid.addColumn(Product::getId).setHeader("ID").setAutoWidth(true);
-        grid.addColumn(Product::getSku).setHeader("SKU").setAutoWidth(true);
-        grid.addColumn(Product::getName).setHeader("Name").setAutoWidth(true);
-        grid.addColumn(Product::getDescription).setHeader("Description").setFlexGrow(1);
-        grid.addColumn(product -> product.getPrice().toPlainString()).setHeader("Price").setAutoWidth(true);
+        grid.addColumn(ProductResponse::id).setHeader("ID").setAutoWidth(true);
+        grid.addColumn(ProductResponse::sku).setHeader("SKU").setAutoWidth(true);
+        grid.addColumn(ProductResponse::name).setHeader("Name").setAutoWidth(true);
+        grid.addColumn(ProductResponse::description).setHeader("Description").setFlexGrow(1);
+        grid.addColumn(product -> product.price().toPlainString()).setHeader("Price").setAutoWidth(true);
         grid.setHeight("420px");
         grid.asSingleSelect().addValueChangeListener(event -> populateForm(event.getValue()));
     }
@@ -79,15 +80,25 @@ public class ProductCrudView extends VerticalLayout implements RefreshableView {
     }
 
     private void save() {
-        if (selectedProduct == null) {
-            productService.create(sku.getValue(), name.getValue(), description.getValue(), price.getValue());
-            Notification.show("Product created");
-        } else {
-            productService.update(selectedProduct.getId(), sku.getValue(), name.getValue(), description.getValue(), price.getValue());
-            Notification.show("Product updated");
+        ProductRequest request = new ProductRequest(
+            sku.getValue(),
+            name.getValue(),
+            description.getValue(),
+            price.getValue()
+        );
+        try {
+            if (selectedProduct == null) {
+                productApiClient.create(request);
+                Notification.show("Product created");
+            } else {
+                productApiClient.update(selectedProduct.id(), request);
+                Notification.show("Product updated");
+            }
+            refreshView();
+            clearForm();
+        } catch (RuntimeException exception) {
+            Notification.show("Product operation failed: " + exception.getMessage(), 5000, Notification.Position.MIDDLE);
         }
-        refreshView();
-        clearForm();
     }
 
     private void deleteSelected() {
@@ -95,22 +106,26 @@ public class ProductCrudView extends VerticalLayout implements RefreshableView {
             Notification.show("Select a product first");
             return;
         }
-        productService.delete(selectedProduct.getId());
-        Notification.show("Product deleted");
-        refreshView();
-        clearForm();
+        try {
+            productApiClient.delete(selectedProduct.id());
+            Notification.show("Product deleted");
+            refreshView();
+            clearForm();
+        } catch (RuntimeException exception) {
+            Notification.show(exception.getMessage(), 5000, Notification.Position.MIDDLE);
+        }
     }
 
-    private void populateForm(Product product) {
+    private void populateForm(ProductResponse product) {
         selectedProduct = product;
         if (product == null) {
             clearForm();
             return;
         }
-        sku.setValue(product.getSku());
-        name.setValue(product.getName());
-        description.setValue(product.getDescription() == null ? "" : product.getDescription());
-        price.setValue(product.getPrice());
+        sku.setValue(product.sku());
+        name.setValue(product.name());
+        description.setValue(product.description() == null ? "" : product.description());
+        price.setValue(product.price());
     }
 
     private void clearForm() {
@@ -124,6 +139,6 @@ public class ProductCrudView extends VerticalLayout implements RefreshableView {
 
     @Override
     public void refreshView() {
-        grid.setItems(productService.findAll());
+        grid.setItems(productApiClient.findAll());
     }
 }

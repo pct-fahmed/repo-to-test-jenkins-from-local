@@ -1,8 +1,9 @@
-package com.example.dvzdemo.ui;
+package com.example.dvzdemo.ui.customer.order;
 
-import com.example.dvzdemo.commerce.customerorder.CustomerOrder;
-import com.example.dvzdemo.commerce.customerorder.CustomerOrderService;
 import com.example.dvzdemo.commerce.customerorder.OrderStatus;
+import com.example.dvzdemo.commerce.customerorder.v1.CustomerOrderRequest;
+import com.example.dvzdemo.commerce.customerorder.v1.CustomerOrderResponse;
+import com.example.dvzdemo.ui.RefreshableView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -21,16 +22,16 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @UIScope
 public class CustomerOrderCrudView extends VerticalLayout implements RefreshableView {
 
-    private final CustomerOrderService customerOrderService;
-    private final Grid<CustomerOrder> grid = new Grid<>(CustomerOrder.class, false);
+    private final CustomerOrderApiClient customerOrderApiClient;
+    private final Grid<CustomerOrderResponse> grid = new Grid<>(CustomerOrderResponse.class, false);
     private final TextField orderNumber = new TextField("Order Number");
     private final TextField customerName = new TextField("Customer Name");
     private final ComboBox<OrderStatus> status = new ComboBox<>("Status");
     private final DateTimePicker orderedAt = new DateTimePicker("Ordered At");
-    private CustomerOrder selectedOrder;
+    private CustomerOrderResponse selectedOrder;
 
-    public CustomerOrderCrudView(CustomerOrderService customerOrderService) {
-        this.customerOrderService = customerOrderService;
+    public CustomerOrderCrudView(CustomerOrderApiClient customerOrderApiClient) {
+        this.customerOrderApiClient = customerOrderApiClient;
 
         setSizeFull();
         configureGrid();
@@ -53,11 +54,11 @@ public class CustomerOrderCrudView extends VerticalLayout implements Refreshable
     }
 
     private void configureGrid() {
-        grid.addColumn(CustomerOrder::getId).setHeader("ID").setAutoWidth(true);
-        grid.addColumn(CustomerOrder::getOrderNumber).setHeader("Order Number").setAutoWidth(true);
-        grid.addColumn(CustomerOrder::getCustomerName).setHeader("Customer").setAutoWidth(true);
-        grid.addColumn(CustomerOrder::getStatus).setHeader("Status").setAutoWidth(true);
-        grid.addColumn(CustomerOrder::getOrderedAt).setHeader("Ordered At").setAutoWidth(true);
+        grid.addColumn(CustomerOrderResponse::id).setHeader("ID").setAutoWidth(true);
+        grid.addColumn(CustomerOrderResponse::orderNumber).setHeader("Order Number").setAutoWidth(true);
+        grid.addColumn(CustomerOrderResponse::customerName).setHeader("Customer").setAutoWidth(true);
+        grid.addColumn(CustomerOrderResponse::status).setHeader("Status").setAutoWidth(true);
+        grid.addColumn(CustomerOrderResponse::orderedAt).setHeader("Ordered At").setAutoWidth(true);
         grid.setHeight("420px");
         grid.asSingleSelect().addValueChangeListener(event -> populateForm(event.getValue()));
     }
@@ -78,15 +79,25 @@ public class CustomerOrderCrudView extends VerticalLayout implements Refreshable
     }
 
     private void save() {
-        if (selectedOrder == null) {
-            customerOrderService.create(orderNumber.getValue(), customerName.getValue(), status.getValue(), orderedAt.getValue());
-            Notification.show("Customer order created");
-        } else {
-            customerOrderService.update(selectedOrder.getId(), orderNumber.getValue(), customerName.getValue(), status.getValue(), orderedAt.getValue());
-            Notification.show("Customer order updated");
+        CustomerOrderRequest request = new CustomerOrderRequest(
+            orderNumber.getValue(),
+            customerName.getValue(),
+            status.getValue(),
+            orderedAt.getValue()
+        );
+        try {
+            if (selectedOrder == null) {
+                customerOrderApiClient.create(request);
+                Notification.show("Customer order created");
+            } else {
+                customerOrderApiClient.update(selectedOrder.id(), request);
+                Notification.show("Customer order updated");
+            }
+            refreshView();
+            clearForm();
+        } catch (RuntimeException exception) {
+            Notification.show("Customer order operation failed: " + exception.getMessage(), 5000, Notification.Position.MIDDLE);
         }
-        refreshView();
-        clearForm();
     }
 
     private void deleteSelected() {
@@ -94,22 +105,26 @@ public class CustomerOrderCrudView extends VerticalLayout implements Refreshable
             Notification.show("Select a customer order first");
             return;
         }
-        customerOrderService.delete(selectedOrder.getId());
-        Notification.show("Customer order deleted");
-        refreshView();
-        clearForm();
+        try {
+            customerOrderApiClient.delete(selectedOrder.id());
+            Notification.show("Customer order deleted");
+            refreshView();
+            clearForm();
+        } catch (RuntimeException exception) {
+            Notification.show("Customer order delete failed: " + exception.getMessage(), 5000, Notification.Position.MIDDLE);
+        }
     }
 
-    private void populateForm(CustomerOrder order) {
+    private void populateForm(CustomerOrderResponse order) {
         selectedOrder = order;
         if (order == null) {
             clearForm();
             return;
         }
-        orderNumber.setValue(order.getOrderNumber());
-        customerName.setValue(order.getCustomerName());
-        status.setValue(order.getStatus());
-        orderedAt.setValue(order.getOrderedAt());
+        orderNumber.setValue(order.orderNumber());
+        customerName.setValue(order.customerName());
+        status.setValue(order.status());
+        orderedAt.setValue(order.orderedAt());
     }
 
     private void clearForm() {
@@ -123,6 +138,6 @@ public class CustomerOrderCrudView extends VerticalLayout implements Refreshable
 
     @Override
     public void refreshView() {
-        grid.setItems(customerOrderService.findAll());
+        grid.setItems(customerOrderApiClient.findAll());
     }
 }

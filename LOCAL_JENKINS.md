@@ -21,7 +21,7 @@ Jenkins UI:
 Initial admin password:
 
 ```bash
-docker exec repo-to-test-jenkins-from-local-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+docker exec idm-plus-poc-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 
 ## Create the pipeline job
@@ -49,7 +49,7 @@ Build the pipeline job. Jenkins will:
 - run `mvn -DskipTests package`
 - build the Docker image
 
-The Jenkins container reaches the CI PostgreSQL container through `host.docker.internal`, which is mapped in [docker-compose.jenkins.yml](/home/faiz/datadisk/gits/repo-to-test-jenkins-from-local/docker-compose.jenkins.yml).
+The Jenkins container reaches the CI PostgreSQL container through `host.docker.internal`, which is mapped in [docker-compose.jenkins.yml](/home/faiz/datadisk/gits/idm-plus-poc/docker-compose.jenkins.yml).
 
 ## Notes
 

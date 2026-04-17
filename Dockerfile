@@ -9,7 +9,7 @@ RUN mvn -B -DskipTests -Pproduction clean package
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-COPY --from=build /workspace/target/repo-to-test-jenkins-from-local-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /workspace/target/idm-plus-poc-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
