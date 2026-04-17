@@ -1,4 +1,4 @@
-# repo-to-test-jenkins-from-local
+# idm-plus-poc
 
 Baseline Java project using:
 
