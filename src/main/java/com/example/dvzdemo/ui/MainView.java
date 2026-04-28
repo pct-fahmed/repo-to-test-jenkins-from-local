@@ -1,5 +1,6 @@
 package com.example.dvzdemo.ui;
 
+import com.example.dvzdemo.ui.appUser.AppUserCrudView;
 import com.example.dvzdemo.ui.customer.order.CustomerOrderCrudView;
 import com.example.dvzdemo.ui.inventory.InventoryCrudView;
 import com.example.dvzdemo.ui.inventory.item.InventoryItemCrudView;
@@ -28,7 +29,8 @@ public class MainView extends VerticalLayout {
         InventoryCrudView inventoryCrudView,
         CustomerOrderCrudView customerOrderCrudView,
         InventoryItemCrudView inventoryItemCrudView,
-        OrderItemCrudView orderItemCrudView
+        OrderItemCrudView orderItemCrudView,
+        AppUserCrudView appUserCrudView
     ) {
         setSizeFull();
         setPadding(true);
@@ -41,14 +43,16 @@ public class MainView extends VerticalLayout {
         Tab customerOrders = new Tab("Customer Orders");
         Tab inventoryItems = new Tab("Inventory Items");
         Tab orderItems = new Tab("Order Items");
+        Tab appUsers = new Tab("Users");
 
         views.put(products, productCrudView);
         views.put(inventories, inventoryCrudView);
         views.put(customerOrders, customerOrderCrudView);
         views.put(inventoryItems, inventoryItemCrudView);
         views.put(orderItems, orderItemCrudView);
+        views.put(appUsers, appUserCrudView); 
 
-        Tabs tabs = new Tabs(products, inventories, customerOrders, inventoryItems, orderItems);
+        Tabs tabs = new Tabs(products, inventories, customerOrders, inventoryItems, orderItems, appUsers);
         tabs.setWidthFull();
         tabs.addSelectedChangeListener(event -> showView(event.getSelectedTab()));
 
