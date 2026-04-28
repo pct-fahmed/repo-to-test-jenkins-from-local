@@ -33,24 +33,24 @@ public class CustomerOrderCrudView extends VerticalLayout implements Refreshable
     public CustomerOrderCrudView(CustomerOrderApiClient customerOrderApiClient) {
         this.customerOrderApiClient = customerOrderApiClient;
 
-        setSizeFull();
-        configureGrid();
-        FormLayout form = buildForm();
-        VerticalLayout formColumn = new VerticalLayout(new H3("Customer Order CRUD"), form);
+        setSizeFull();                 
+        configureGrid();                
+        FormLayout form = buildForm();     
+        VerticalLayout formColumn = new VerticalLayout(new H3("Customer Order CRUD"), form);    
         formColumn.setWidth("400px");
         formColumn.setFlexShrink(0);
         formColumn.setPadding(false);
         formColumn.setSpacing(true);
 
-        grid.setSizeFull();
+        grid.setSizeFull();    
 
-        HorizontalLayout layout = new HorizontalLayout(formColumn, grid);
+        HorizontalLayout layout = new HorizontalLayout(formColumn, grid);     
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.expand(grid);
 
-        add(layout);
-        expand(layout);
+        add(layout);        
+        expand(layout);         
     }
 
     private void configureGrid() {
